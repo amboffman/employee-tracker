@@ -3,13 +3,9 @@ const inquirer = require("inquirer");
 
 const connection = mysql.createConnection({
   host: "localhost",
-
   port: process.env.PORT || 3306,
-
   user: "root",
-
   password: "password",
-
   database: "employee_db",
 });
 
@@ -62,23 +58,92 @@ function start() {
         ],
       })
     .then((answer) => {
-      switch (answer.action) {
-        case ViewEmployees:
-          return showAllEmployees();
-
-      }
+      const query =
+        "SELECT employee.id, employee.firstname, employee.lastname,role.title AS title, departments.department AS department, role.salary AS salary, manager.firstname AS manager FROM employee JOIN role ON employee.role_id = role.id LEFT JOIN employee AS manager ON employee.manager_id = manager.id JOIN departments ON role.department_id = departments.id ORDER BY employee.id";
+      connection.query(query, (err, res) => {
+        if (err) { throw err; }
+        switch (answer.action) {
+          case ViewEmployees:
+            return showAllEmployees(res);
+          case ViewByManager:
+            return showEmployeesByManager(res);
+          case ViewByDepartment:
+            return showEmployeesByDepartment(res);
+        }
+      })
 
     })
 
 }
 
-function showAllEmployees() {
-  const query =
-    "SELECT employee.id, employee.firstname, employee.lastname,role.title AS title, departments.department AS department, role.salary AS salary, manager.firstname AS manager FROM employee JOIN role ON employee.role_id = role.id LEFT JOIN employee AS manager ON employee.manager_id = manager.id JOIN departments ON role.department_id = departments.id ORDER BY employee.id";
-  connection.query(query, (err, res) => {
-    if (err) { throw err; }
-      console.table(res)
-    start();
-  })
+function showAllEmployees (response) {
+  console.table(response);
+  start()
 }
 
+
+function showEmployeesByManager(response) {
+  const choices = []
+  for (let i = 0; i < response.length; i++) {
+    const added = choices.includes(response[i].manager)
+    if (response[i].manager === null || added === true) { }
+    else {
+      choices.push(response[i].manager)
+    }
+  }
+  inquirer
+    .prompt({
+      type: "rawlist",
+      name: "manager",
+      message: "Who is the manager?",
+      choices: choices
+    })
+    .then((answer) => {
+      const query =
+        "SELECT employee.id, employee.firstname, employee.lastname,role.title AS title, departments.department AS department, role.salary AS salary, manager.firstname AS manager FROM employee JOIN role ON employee.role_id = role.id LEFT JOIN employee AS manager ON employee.manager_id = manager.id JOIN departments ON role.department_id = departments.id WHERE manager.? ORDER BY employee.id";
+      connection.query(query,
+        [
+          {
+            firstname: answer.manager
+          }
+        ]
+        , (err, res) => {
+          if (err) { throw err; }
+          console.table(res)
+          start();
+        })
+    })
+}
+
+function showEmployeesByDepartment(response) {
+  const choices = []
+  for (let i = 0; i < response.length; i++) {
+    const added = choices.includes(response[i].department)
+    if (response[i].department === null || added === true) { }
+    else {
+      choices.push(response[i].department)
+    }
+  }
+  inquirer
+    .prompt({
+      type: "rawlist",
+      name: "department",
+      message: "What is the department?",
+      choices: choices
+    })
+    .then((answer) => {
+      const query =
+        "SELECT employee.id, employee.firstname, employee.lastname,role.title AS title, departments.department AS department, role.salary AS salary, manager.firstname AS manager FROM employee JOIN role ON employee.role_id = role.id LEFT JOIN employee AS manager ON employee.manager_id = manager.id JOIN departments ON role.department_id = departments.id WHERE departments.? ORDER BY employee.id";
+      connection.query(query,
+        [
+          {
+            department: answer.department
+          }
+        ]
+        , (err, res) => {
+          if (err) { throw err; }
+          console.table(res)
+          start();
+        })
+    })
+}
