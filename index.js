@@ -74,28 +74,11 @@ function start() {
 
 function showAllEmployees() {
   const query =
-    "SELECT employee.id, employee.firstname, employee.lastname,role.title AS title, departments.department AS department, role.salary AS salary, manager.firstname AS manager FROM employee JOIN role ON employee.role_id = role.id JOIN employee AS manager ON employee.manager_id = manager.id JOIN departments ON role.department_id = departments.id;";
+    "SELECT employee.id, employee.firstname, employee.lastname,role.title AS title, departments.department AS department, role.salary AS salary, manager.firstname AS manager FROM employee JOIN role ON employee.role_id = role.id LEFT JOIN employee AS manager ON employee.manager_id = manager.id JOIN departments ON role.department_id = departments.id ORDER BY employee.id";
   connection.query(query, (err, res) => {
     if (err) { throw err; }
-    for (let i = 0; i < res.length; i++) {
-      console.log(
-        "ID: " +
-        res[i].id +
-        " || First Name: " +
-        res[i].firstname +
-        " || Last Name: " +
-        res[i].lastname +
-        " || Title: " +
-        res[i].title +
-        " || Department: " +
-        res[i].department + 
-        " || Salary: " +
-        res[i].salary +
-        " || Manager: " +
-        res[i].manager + 
-        "\n"
-      )
-    }
+      console.table(res)
     start();
   })
 }
+
