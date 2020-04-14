@@ -52,11 +52,12 @@ VALUES
 
 SELECT * FROM employee;
 
-SELECT employee.firstname, employee.lastname, manager.firstname AS manager,role.title AS role, departments.department AS department
+SELECT employee.firstname, employee.lastname, manager.firstname AS manager,role.title AS title, departments.department AS department
 FROM employee
 JOIN role ON employee.role_id = role.id
-JOIN employee AS manager ON employee.manager_id = manager.id
-JOIN departments ON role.department_id = departments.id;
+LEFT JOIN employee AS manager ON employee.manager_id = manager.id
+JOIN departments ON role.department_id = departments.id
+ORDER BY employee.id;
 
 
 

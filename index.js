@@ -20,7 +20,7 @@ connection.connect((err) => {
 function start() {
   const ViewEmployees = "View all employees";
   const ViewByDepartment = "View employees by department";
-  const ViewByRole = "View employees by role";
+  const ViewByTitle = "View employees by title";
   const ViewByManager = "View employees by manager";
   const AddEmployee = "Add employee";
   const RemoveEmployee = "Remove employee";
@@ -43,7 +43,7 @@ function start() {
           ViewEmployees,
           ViewByManager,
           ViewByDepartment,
-          ViewByRole,
+          ViewByTitle,
           AddEmployee,
           RemoveEmployee,
           UpdateEmployeeManager,
@@ -69,6 +69,8 @@ function start() {
             return showEmployeesByManager(res);
           case ViewByDepartment:
             return showEmployeesByDepartment(res);
+          case ViewByTitle:
+            return showEmployeesByTitle(res);
         }
       })
 
@@ -138,6 +140,39 @@ function showEmployeesByDepartment(response) {
         [
           {
             department: answer.department
+          }
+        ]
+        , (err, res) => {
+          if (err) { throw err; }
+          console.table(res)
+          start();
+        })
+    })
+}
+
+function showEmployeesByTitle(response) {
+  const choices = []
+  for (let i = 0; i < response.length; i++) {
+    const added = choices.includes(response[i].title)
+    if (response[i].title === null || added === true) { }
+    else {
+      choices.push(response[i].title)
+    }
+  }
+  inquirer
+    .prompt({
+      type: "rawlist",
+      name: "title",
+      message: "What is the title?",
+      choices: choices
+    })
+    .then((answer) => {
+      const query =
+        "SELECT employee.firstname, employee.lastname, manager.firstname AS manager,role.title AS title, departments.department AS department FROM employee JOIN role ON employee.role_id = role.id LEFT JOIN employee AS manager ON employee.manager_id = manager.id JOIN departments ON role.department_id = departments.id WHERE role.? ORDER BY employee.id;";
+      connection.query(query,
+        [
+          {
+            title: answer.title
           }
         ]
         , (err, res) => {
