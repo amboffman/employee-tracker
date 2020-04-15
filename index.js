@@ -45,15 +45,15 @@ function start() {
           ViewByDepartment,
           ViewByTitle,
           AddEmployee,
+          AddRole,
+          AddDepartment,
           RemoveEmployee,
+          RemoveRole,
+          RemoveDepartment,
           UpdateEmployeeManager,
           UpdateEmployeeRole,
           ViewAllRoles,
-          AddRole,
-          RemoveRole,
           ViewAllDepartments,
-          AddDepartment,
-          RemoveDepartment,
           "EXIT"
         ],
       })
@@ -71,6 +71,8 @@ function start() {
             return showEmployeesByDepartment(res);
           case ViewByTitle:
             return showEmployeesByTitle(res);
+          case AddEmployee:
+            return addEmployee(res);
         }
       })
 
@@ -78,11 +80,81 @@ function start() {
 
 }
 
-function showAllEmployees (response) {
+function showAllEmployees(response) {
   console.table(response);
   start()
 }
 
+function addEmployee(response) {
+  const managerChoices = []
+  for (let i = 0; i < response.length; i++) {
+    const added = managerChoices.includes(response[i].manager)
+    if (response[i].manager === null || added === true) { }
+    else {
+      managerChoices.push(response[i].manager)
+    }
+  }
+  const titleChoices = []
+  for (let i = 0; i < response.length; i++) {
+    const added = titleChoices.includes(response[i].title)
+    if (response[i].title === null || added === true) { }
+    else {
+      titleChoices.push(response[i].title)
+    }
+  }
+  inquirer
+    .prompt([
+      {
+        type: "input",
+        name: "firstname",
+        message: "What is their first name?"
+      },
+      {
+        type: "input",
+        name: "lastname",
+        message: "What is their last name?"
+      },
+      {
+        type: "rawlist",
+        name: "title",
+        message: "What is their title?",
+        choices: titleChoices
+      },
+      {
+        type: "rawlist",
+        name: "manager",
+        message: "Who is their manager?",
+        choices: managerChoices
+      }
+    ])
+    .then((answer) => {
+      const query =
+        "SELECT * FROM role";
+
+      connection.query(query, (err, res) => {
+        { if (err) { throw err; } }
+        const title = res.filter((res) => res.title === answer.title)
+        const manager = response.filter((response) => response.firstname === answer.manager)
+        console.log(manager)
+        const query =
+          "INSERT INTO employee SET ?";
+        connection.query(query,
+          [
+            {
+              firstname: answer.firstname,
+              lastname: answer.lastname,
+              role_id: title[0].id,
+              manager_id: manager[0].id
+            }
+          ]
+          , (err, res) => {
+            if (err) { throw err; }
+            console.table(res)
+            start();
+          })
+      })
+    })
+}
 
 function showEmployeesByManager(response) {
   const choices = []
