@@ -27,7 +27,7 @@ function start() {
   const UpdateEmployeeRole = "Update employee role";
   const UpdateEmployeeManager = "Update employee manager";
   const ViewAllRoles = "View all roles";
-  const AddRole = "Add role";
+  const AddTitle = "Add title";
   const RemoveRole = "Remove role";
   const ViewAllDepartments = "View all departments";
   const AddDepartment = "Add department";
@@ -45,7 +45,7 @@ function start() {
           ViewByDepartment,
           ViewByTitle,
           AddEmployee,
-          AddRole,
+          AddTitle,
           AddDepartment,
           RemoveEmployee,
           RemoveRole,
@@ -73,6 +73,8 @@ function start() {
             return showEmployeesByTitle(res);
           case AddEmployee:
             return addEmployee(res);
+          case AddTitle:
+            return addTitle(res);
         }
       })
 
@@ -149,12 +151,78 @@ function addEmployee(response) {
           ]
           , (err, res) => {
             if (err) { throw err; }
-            console.table(res)
             start();
           })
       })
     })
 }
+
+function addTitle(response) {
+  const query =
+    "SELECT * FROM departments";
+  connection.query(query, (err, results) => {
+    if (err) { throw err; }
+    const choices = []
+    for (let i = 0; i < response.length; i++) {
+      const added = choices.includes(response[i].department)
+      if (response[i].department === null || added === true) { }
+      else {
+        choices.push(response[i].department)
+      }
+    }
+
+    const query =
+      "SELECT * FROM role";
+    connection.query(query, (err, res) => {
+      if (err) { throw err; }
+
+      inquirer
+        .prompt([
+          {
+            type: "input",
+            name: "title",
+            message: "What is the title?"
+          },
+          {
+            type: "input",
+            name: "salary",
+            message: "What is the salary?"
+          },
+          {
+            type: "rawlist",
+            name: "department",
+            message: "Which department?",
+            choices: choices
+          }
+        ])
+        .then((answer) => {
+          const department = results.filter((result) => result.department === answer.department)
+          const match = res.filter((res) => res.title === answer.title)
+          if (match.length > 0) {
+            console.log("This title is already in our database. Please add another.")
+            addTitle()
+          }
+          else {
+            const query =
+              "INSERT INTO role SET ?";
+            connection.query(query,
+              [
+                {
+                  title: answer.title,
+                  salary: answer.salary,
+                  department_id: department[0].id
+                }
+              ]
+              , (err, responses) => {
+                if (err) { throw err; }
+                start();
+              })
+          }
+        })
+    })
+  })
+}
+
 
 function showEmployeesByManager(response) {
   const choices = []
