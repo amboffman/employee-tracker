@@ -8,7 +8,6 @@ init();
 
 function init(){
   questionmaker.mainMenu((results) => {
-    console.log(results)
     const choice = results.action;
  
     switch (choice) {
@@ -46,11 +45,14 @@ function init(){
             })
             break;
 
-
-      case questions.ViewByTitle:
-        return showEmployeesByTitle(res);
       case questions.AddEmployee:
-        return addEmployee(res);
+        questionmaker.addEmployee((result) => {
+          const data = result;
+          console.log(data);
+          init()
+        })
+        break;
+
       case questions.AddTitle:
         return addTitle(res);
         default: console.log("try again")
@@ -115,7 +117,7 @@ function showAllEmployees(response) {
   start()
 }
 
-function addEmployee(response) {
+function addEmployeeOLD(response) {
   const managerChoices = []
   for (let i = 0; i < response.length; i++) {
     const added = managerChoices.includes(response[i].manager)
@@ -163,9 +165,13 @@ function addEmployee(response) {
 
       connection.query(query, (err, res) => {
         { if (err) { throw err; } }
+
         const title = res.filter((res) => res.title === answer.title)
+
         const manager = response.filter((response) => response.firstname === answer.manager)
+
         console.log(manager)
+
         const query =
           "INSERT INTO employee SET ?";
         connection.query(query,
@@ -249,38 +255,4 @@ function addTitle(response) {
         })
     })
   })
-}
-
-
-function showEmployeesByTitle(response) {
-  const choices = []
-  for (let i = 0; i < response.length; i++) {
-    const added = choices.includes(response[i].title)
-    if (response[i].title === null || added === true) { }
-    else {
-      choices.push(response[i].title)
-    }
-  }
-  inquirer
-    .prompt({
-      type: "rawlist",
-      name: "title",
-      message: "What is the title?",
-      choices: choices
-    })
-    .then((answer) => {
-      const query =
-        "SELECT employee.firstname, employee.lastname, manager.firstname AS manager,role.title AS title, departments.department AS department FROM employee JOIN role ON employee.role_id = role.id LEFT JOIN employee AS manager ON employee.manager_id = manager.id JOIN departments ON role.department_id = departments.id WHERE role.? ORDER BY employee.id;";
-      connection.query(query,
-        [
-          {
-            title: answer.title
-          }
-        ]
-        , (err, res) => {
-          if (err) { throw err; }
-          console.table(res)
-          start();
-        })
-    })
 }

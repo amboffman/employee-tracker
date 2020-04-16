@@ -51,7 +51,7 @@ module.exports = {
           case "manager":
             colIndex = res[i].manager
             column = "manager.firstname"
-            
+
             break;
 
           case "department":
@@ -86,6 +86,67 @@ module.exports = {
           })
 
         })
+    })
+  },
+
+  addEmployee: (cb) => {
+    orm.readRaw("role", (roleRes) => {
+      const titles = roleRes.map((row) => {
+        return {
+          name: row.title,
+          value: row.id,
+        };
+      });
+      orm.readJoined("employee", (res) => {
+        const managers = []
+        for (let i = 0; i < res.length; i++) {
+          const added = managers.includes(res[i].manager)
+          if (res[i].manager === null || added === true) { }
+          else {
+            managers.push(res[i].manager)
+          }
+        }
+        inquirer
+          .prompt([
+            {
+              type: "input",
+              name: "firstname",
+              message: "What is their first name?"
+            },
+            {
+              type: "input",
+              name: "lastname",
+              message: "What is their last name?"
+            },
+            {
+              type: "rawlist",
+              name: "title",
+              message: "What is their title?",
+              choices: titles
+            },
+            {
+              type: "rawlist",
+              name: "manager",
+              message: "Who is their manager?",
+              choices: managers
+            }
+          ])
+          .then((answer) => {
+            const manager = res.filter((response) => response.firstname === answer.manager)
+
+            const firstname = JSON.stringify(answer.firstname).replace(/['"]+/g, '')
+
+            const lastname = JSON.stringify(answer.lastname).replace(/['"]+/g, '')
+
+            const roleID = JSON.stringify(answer.title).replace(/['"]+/g, '')
+
+            const managerID = JSON.stringify(manager[0].id).replace(/['"]+/g, '')
+
+            orm.addEmp("firstname", "lastname", "role_id", "manager_id", firstname, lastname, roleID, managerID, (finalResult) => {
+              cb(finalResult)
+            })
+          })
+      })
     })
   }
 
