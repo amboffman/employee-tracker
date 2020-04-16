@@ -13,6 +13,17 @@ const orm = {
       })
   },
 
+  readRoleJoin: (table, cb) => {
+    const query = "SELECT role.title AS title, role.salary, departments.department AS department FROM ?? JOIN departments ON role.department_id = departments.id ORDER BY role.id;";
+    const values = [table]
+
+    connection.query(query, values,
+      (err, result) => {
+        if (err) { throw err };
+        cb(result)
+      })
+  },
+
   readJoined: (table, cb) => {
     const query = "SELECT employee.id, employee.firstname, employee.lastname,role.title AS title, departments.department AS department, role.salary AS salary, manager.firstname AS manager FROM ?? JOIN role ON employee.role_id = role.id LEFT JOIN employee AS manager ON employee.manager_id = manager.id JOIN departments ON role.department_id = departments.id ORDER BY employee.id";
     const values = [table]

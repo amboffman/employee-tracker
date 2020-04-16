@@ -13,7 +13,7 @@ function init(){
     switch (choice) {
 
       case questions.ViewEmployees:
-        questionmaker.viewAll((result) => {
+        questionmaker.viewAllEmps((result) => {
           const data = result;
           console.table(data);
           init()
@@ -76,8 +76,25 @@ function init(){
           init()
         })
         break;
+        
+        case questions.ViewAllRoles:
+          questionmaker.viewAllRoles((result) => {
+            const data = result;
+            console.table(data);
+            init()
+          })
+          break;
+
+        case questions.ViewAllDepartments:
+          questionmaker.viewAllDepts((result) => {
+            const data = result;
+            console.table(data);
+            init()
+          })
+          break;
 
         default: console.log("Thank you and have a nice day!")
+        connection.end()
       }
   })
 }

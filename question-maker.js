@@ -31,8 +31,20 @@ module.exports = {
         })
   },
 
-  viewAll: (cb) => {
+  viewAllEmps: (cb) => {
     orm.readJoined("employee", (result) => {
+      cb(result)
+    })
+  },
+  
+  viewAllRoles: (cb) => {
+    orm.readRoleJoin("role", (result) => {
+      cb(result)
+    })
+  },
+
+  viewAllDepts: (cb) => {
+    orm.readRaw("departments", (result) => {
       cb(result)
     })
   },
