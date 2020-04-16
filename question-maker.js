@@ -41,51 +41,47 @@ module.exports = {
     })
   },
 
-  viewByManager: (cb) => {
+  viewByCategory: (type, cb) => {
     orm.readJoined("employee", (res) => {
+      let column = ""
       const choices = []
       for (let i = 0; i < res.length; i++) {
-        const added = choices.includes(res[i].manager)
-        if (res[i].manager === null || added === true) { }
+        let colIndex = ""
+        switch (type) {
+          case "manager":
+            colIndex = res[i].manager
+            column = "manager.firstname"
+            
+            break;
+
+          case "department":
+            colIndex = res[i].department
+            column = "departments.department"
+            break;
+
+          case "title":
+            colIndex = res[i].title
+            column = "role.title"
+            break;
+          default:
+            break;
+        }
+        const added = choices.includes(colIndex)
+        if (colIndex === null || added === true) { }
         else {
-          choices.push(res[i].manager)
+          choices.push(colIndex)
         }
       }
       inquirer
         .prompt({
           type: "rawlist",
-          name: "manager",
-          message: "Who is the manager?",
+          name: "choice",
+          message: "Which " + type + "?",
           choices: choices
         })
         .then((answer) => {
-          orm.readByCriteria("manager.firstname", answer.manager, (result) => {
-            cb(result)
-          })
-
-        })
-    })
-  },
-
-  viewByDepartment: (cb) => {
-    orm.readJoined("employee", (res) => {
-      const choices = []
-  for (let i = 0; i < res.length; i++) {
-    const added = choices.includes(res[i].department)
-    if (res[i].department === null || added === true) { }
-    else {
-      choices.push(res[i].department)
-    }
-  }
-      inquirer
-        .prompt({
-          type: "rawlist",
-          name: "department",
-          message: "What is the department?",
-          choices: choices
-        })
-        .then((answer) => {
-          orm.readByCriteria("departments.department",answer.department, (result) => {
+          console.log(column)
+          orm.readByCriteria(column, answer.choice, (result) => {
             cb(result)
           })
 

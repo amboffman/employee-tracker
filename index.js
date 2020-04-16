@@ -22,7 +22,7 @@ function init(){
         break;
 
       case questions.ViewByManager:
-        questionmaker.viewByManager((result) => {
+        questionmaker.viewByCategory("manager",(result) => {
           const data = result;
           console.table(data);
           init()
@@ -31,7 +31,7 @@ function init(){
 
 
         case questions.ViewByDepartment:
-          questionmaker.viewByDepartment((result) => {
+          questionmaker.viewByCategory("department",(result) => {
             const data = result;
             console.table(data);
             init()
@@ -39,7 +39,7 @@ function init(){
           break;
 
           case questions.ViewByTitle:
-            questionmaker.viewByTitle((result) => {
+            questionmaker.viewByCategory("title",(result) => {
               const data = result;
               console.table(data);
               init()
