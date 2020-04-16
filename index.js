@@ -61,6 +61,14 @@ function init(){
         })
         break;
 
+      case questions.AddDepartment:
+        questionmaker.addDepartment((result) => {
+          const data = result;
+          console.log(data);
+          init()
+        })
+        break;
+
         default: console.log("try again")
       }
   })

@@ -158,38 +158,59 @@ module.exports = {
           value: row.id,
         };
       });
-        inquirer
-          .prompt([
-            {
-              type: "input",
-              name: "title",
-              message: "What is new title?"
-            },
-            {
-              type: "input",
-              name: "salary",
-              message: "What is the salary?"
-            },
-            {
-              type: "rawlist",
-              name: "department",
-              message: "Which department?",
-              choices: departments
-            }
-          ])
-          .then((answer) => {
-            
-            const title = JSON.stringify(answer.title).replace(/['"]+/g, '')
+      inquirer
+        .prompt([
+          {
+            type: "input",
+            name: "title",
+            message: "What is new title?"
+          },
+          {
+            type: "input",
+            name: "salary",
+            message: "What is the salary?"
+          },
+          {
+            type: "rawlist",
+            name: "department",
+            message: "Which department?",
+            choices: departments
+          }
+        ])
+        .then((answer) => {
 
-            const salary = JSON.stringify(answer.salary).replace(/['"]+/g, '')
+          const title = JSON.stringify(answer.title).replace(/['"]+/g, '')
 
-            const departmentID = JSON.stringify(answer.department).replace(/['"]+/g, '')
+          const salary = JSON.stringify(answer.salary).replace(/['"]+/g, '')
 
-            orm.addTitle("title", "salary", "department_id", title, salary, departmentID, (finalResult) => {
-              cb(finalResult)
-            })
+          const departmentID = JSON.stringify(answer.department).replace(/['"]+/g, '')
+
+          orm.addTitle("title", "salary", "department_id", title, salary, departmentID, (finalResult) => {
+            cb(finalResult)
           })
+        })
     })
+  },
+
+  addDepartment: (cb) => {
+    inquirer
+      .prompt([
+        {
+          type: "input",
+          name: "department",
+          message: "What is the name of the department you'd like to add?"
+        }
+      ])
+      .then((answer) => {
+
+        const departmentName = JSON.stringify(answer.department).replace(/['"]+/g, '')
+
+        orm.addDepartment("department", departmentName, (finalResult) => {
+          cb(finalResult)
+        })
+      })
   }
+
+
 
 }

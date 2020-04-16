@@ -55,6 +55,17 @@ const orm = {
         if (err) { throw err };
         cb("Added Title: " + val1)
       })
+  },
+
+  addDepartment: (col1, val1, cb) => {
+    const query = "INSERT INTO departments (??) VALUES (?)";
+    const values = [col1, val1]
+
+    connection.query(query, values,
+      (err, result) => {
+        if (err) { throw err };
+        cb("Added Department: " + val1)
+      })
   }
 
 }
