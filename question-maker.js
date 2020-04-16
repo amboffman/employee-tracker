@@ -148,6 +148,48 @@ module.exports = {
           })
       })
     })
+  },
+
+  addTitle: (cb) => {
+    orm.readRaw("departments", (deptRes) => {
+      const departments = deptRes.map((row) => {
+        return {
+          name: row.department,
+          value: row.id,
+        };
+      });
+        inquirer
+          .prompt([
+            {
+              type: "input",
+              name: "title",
+              message: "What is new title?"
+            },
+            {
+              type: "input",
+              name: "salary",
+              message: "What is the salary?"
+            },
+            {
+              type: "rawlist",
+              name: "department",
+              message: "Which department?",
+              choices: departments
+            }
+          ])
+          .then((answer) => {
+            
+            const title = JSON.stringify(answer.title).replace(/['"]+/g, '')
+
+            const salary = JSON.stringify(answer.salary).replace(/['"]+/g, '')
+
+            const departmentID = JSON.stringify(answer.department).replace(/['"]+/g, '')
+
+            orm.addTitle("title", "salary", "department_id", title, salary, departmentID, (finalResult) => {
+              cb(finalResult)
+            })
+          })
+    })
   }
 
 }

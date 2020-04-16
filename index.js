@@ -54,7 +54,13 @@ function init(){
         break;
 
       case questions.AddTitle:
-        return addTitle(res);
+        questionmaker.addTitle((result) => {
+          const data = result;
+          console.log(data);
+          init()
+        })
+        break;
+
         default: console.log("try again")
       }
   })
@@ -191,7 +197,7 @@ function addEmployeeOLD(response) {
     })
 }
 
-function addTitle(response) {
+function addTitleOLD(response) {
   const query =
     "SELECT * FROM departments";
   connection.query(query, (err, results) => {
