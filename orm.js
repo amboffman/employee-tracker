@@ -45,6 +45,17 @@ const orm = {
         cb("Added: " + val1 + " " + val2)
       })
   },
+
+  updateEmpRole: (val1, val2, cb) => {
+    const query = "UPDATE employee SET role_id = ? WHERE id = ?";
+    const values = [val1, val2]
+
+    connection.query(query, values,
+      (err, result) => {
+        if (err) { throw err };
+        cb("Updated title")
+      })
+  },
   
   addTitle: (col1, col2, col3, val1, val2, val3, cb) => {
     const query = "INSERT INTO role (??, ??, ??) VALUES (?, ?, ?)";

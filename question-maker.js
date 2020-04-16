@@ -19,12 +19,8 @@ module.exports = {
             questions.ViewByDepartment,
             questions.ViewByTitle,
             questions.AddEmployee,
-            questions.AddTitle,
             questions.AddDepartment,
-            questions.RemoveEmployee,
-            questions.RemoveRole,
-            questions.RemoveDepartment,
-            questions.UpdateEmployeeManager,
+            questions.AddTitle,
             questions.UpdateEmployeeRole,
             questions.ViewAllRoles,
             questions.ViewAllDepartments,
@@ -143,6 +139,51 @@ module.exports = {
             const managerID = JSON.stringify(manager[0].id).replace(/['"]+/g, '')
 
             orm.addEmp("firstname", "lastname", "role_id", "manager_id", firstname, lastname, roleID, managerID, (finalResult) => {
+              cb(finalResult)
+            })
+          })
+      })
+    })
+  },
+
+  updateEmpRole: (cb) => {
+    orm.readRaw("role", (roleRes) => {
+      const titles = roleRes.map((row) => {
+        return {
+          name: row.title,
+          value: row.id,
+        };
+      });
+      orm.readJoined("employee", (res) => {
+        const employees = res.map((row) => {
+          return {
+            name: row.firstname + " " + row.lastname,
+            value: row.id,
+          };
+        });
+        inquirer
+          .prompt([
+            {
+              type: "rawlist",
+              name: "employee",
+              message: "Which employee?",
+              choices: employees
+            },
+            {
+              type: "rawlist",
+              name: "title",
+              message: "What is their new title?",
+              choices: titles
+            },
+
+          ])
+          .then((answer) => {
+
+            const employeeID = JSON.stringify(answer.employee).replace(/['"]+/g, '')
+
+            const roleID = JSON.stringify(answer.title).replace(/['"]+/g, '')
+
+            orm.updateEmpRole(roleID, employeeID, (finalResult) => {
               cb(finalResult)
             })
           })
